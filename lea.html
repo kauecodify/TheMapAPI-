@@ -11,8 +11,8 @@
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
     <link rel="stylesheet" href="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.css" />
-
     <script src="https://unpkg.com/leaflet-control-geocoder/dist/Control.Geocoder.js"></script>
+    
     <style>
         #map {
             height: 400px;
@@ -27,11 +27,36 @@
                 opacity: 0;
             }
         }
+
+        #eventFrame {
+            border: 1px solid #ccc;
+            margin-top: 20px;
+            padding: 10px;
+            width: 100%;
+            height: 200px;
+            overflow-y: scroll;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+
+        th {
+            background-color: #f2f2f2;
+        }
     </style>
 </head>
 
 <body>
-    <h2>Adicionar dados com copy Google Maps</h2>
+    <h2>LeafletMap</h2>
+    <h5>LAT/LONG apertando o botão direito em cima do local no Google Maps + (ctrl c + v) </h5>
     <div id="map"></div>
 
     <div id="endereçoEvento">
@@ -56,9 +81,27 @@
             </path>
         </svg></button>
 
+    <div id="eventFrame">
+        <table id="eventTable">
+            <thead>
+                <tr>
+                    <th>Nome do Evento</th>
+                    <th>Descrição do Evento</th>
+                    <th>Endereço</th>
+                    <th>Latitude</th>
+                    <th>Longitude</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+    </div>
+
     <script>
         var map = L.map('map').setView([0, 0], 2);
         var events = [];
+        var eventFrame = document.getElementById('eventFrame');
+        var eventTableBody = document.getElementById('eventTable').getElementsByTagName('tbody')[0];
 
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
             attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -81,6 +124,7 @@
                             var lon = parseFloat(data[0].lon);
 
                             L.marker([lat, lon]).addTo(map);
+                            map.setView([lat, lon], 25);
 
                             var event = {
                                 address: address,
@@ -91,6 +135,13 @@
                             };
 
                             console.log('Dados do evento:', event);
+
+                            var row = eventTableBody.insertRow();
+                            row.insertCell(0).textContent = event.eventName;
+                            row.insertCell(1).textContent = event.eventDescription;
+                            row.insertCell(2).textContent = event.address;
+                            row.insertCell(3).textContent = event.latitude;
+                            row.insertCell(4).textContent = event.longitude;
                         } else {
                             alert('Endereço não encontrado.');
                         }
